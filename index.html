@@ -1,0 +1,81 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>First DApp Demo</title>
+        <link rel="stylesheet" type="text/css" href="main.css">
+        <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+        <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>First DApp Demo</h1>
+            <h2 id="info"></h2>
+            <label>name:</label>
+            <input id="name" type="text">
+            <label>age:</label>
+            <input id="age" type="text">
+            <button id="button">update</button>
+        </div>
+        <script>
+            if (typeof web3 !== 'undefined') { //将web3实例化
+                web3 = new Web3(web3.currentProvider);
+                } else {
+                // set the provider you want from Web3.providers
+                web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8080"));
+            }
+            console.log("web3"+web3);
+            var InfoContract = new web3.eth.Contract([ //第一项参数为sol文件经过编译后得到的ABI，第二项参数为部署后的合约地址
+                {
+                    "constant": true,
+                    "inputs": [],
+                    "name": "getInfo",
+                    "outputs": [
+                        {
+                            "name": "",
+                            "type": "string"
+                        },
+                        {
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "constant": false,
+                    "inputs": [
+                        {
+                            "name": "_name",
+                            "type": "string"
+                        },
+                        {
+                            "name": "_age",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "setInfo",
+                    "outputs": [],
+                    "payable": false,
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ], '请输入部署后的合约地址'); 
+            InfoContract.methods.getInfo().call(function(error, result) {
+                if (!error) {
+                    $("#info").html(result[0] + '(' + result[1] + ' years old)');
+                }
+            });
+            $("#button").click(function() {
+                var name = $("#name").val();
+                var age = $("#age").val();
+                InfoContract.methods.setInfo(name, age).send({from: '请输入自己的MetaMask账号地址'}, function(error, result) {
+                    if (!error) {
+                        console.log("set ok!");
+                    }
+                });
+            })
+        </script>
+    </body>
+</html>
